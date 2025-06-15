@@ -1,0 +1,8 @@
+Django>=5.2.3
+django-ninja>=1.0.1
+python-dotenv>=1.0.1
+gunicorn>=21.2.0 
+django-cors-headers>=4.5.0
+smolagents
+smolagents[mcp]
+smolagents[litellm]

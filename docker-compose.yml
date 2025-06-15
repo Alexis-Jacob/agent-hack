@@ -27,3 +27,15 @@ services:
       - NODE_ENV=development
     depends_on:
       - web
+
+  mcp:
+    build:
+      context: mcp/
+      dockerfile: build/Dockerfile
+    command: python server.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mcp:/app
+    depends_on:
+      - web
