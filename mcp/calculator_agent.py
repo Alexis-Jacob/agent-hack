@@ -22,6 +22,13 @@ LOCAL_MATH_SERVER = StdioServerParameters(
     args=[str(Path(__file__).with_name("calculator_server.py"))],   # ./math_server.py
 )
 
+REMOTE_CALCULATOR = {
+    # Any Space launched with demo.launch(mcp_server=True) exposes this endpoint
+    "url": "https://agents-mcp-hackathon-simple-calculator.hf.space/gradio_api/mcp/sse",
+    "transport": "sse",
+}
+
+
 MODEL_ID = "mistralai/Mixtral-8x22B-Instruct-v0.1"   # works well for tool-use
 HF_TOKEN = os.getenv("HF_TOKEN")                     # or login via `huggingface-cli login`
 PROMPT = "What is (7 + 13) × 2?"                     # change as you like
