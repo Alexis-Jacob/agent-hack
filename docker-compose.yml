@@ -6,7 +6,12 @@ services:
       context: api/
       dockerfile: build/Dockerfile
     working_dir: /app/backend
+<<<<<<< HEAD
     command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --reload --timeout 3600
+=======
+    # command: ls
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --reload
+>>>>>>> dd83ffc (new tools)
     volumes:
       - ./api:/app
     ports:
