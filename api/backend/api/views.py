@@ -41,15 +41,19 @@ def build_model() -> InferenceClientModel:
 
 
 async def run_agent(tools_cfg, prompt: str) -> str:
-    mcp_client = MCPClient(tools_cfg)
-    with MCPClient(tools_cfg) as mcp_client:
-        tools = mcp_client.get_tools()
-
-        # Use the tools with your agent
-        agent = CodeAgent(tools=tools, model=build_model())
+    with ToolCollection.from_mcp(tools_cfg, trust_remote_code=True) as tool_collection:
+        agent = CodeAgent(tools=[*tool_collection.tools], model=build_model(), add_base_tools=False)
         result = agent.run(prompt)
-
         return result
+    # mcp_client = MCPClient([tools_cfg])
+    # with MCPClient(tools_cfg) as mcp_client:
+    #     tools = mcp_client.get_tools()
+
+    #     # Use the tools with your agent
+    #     agent = CodeAgent(tools=tools, model=build_model())
+    #     result = agent.run(prompt)
+
+    #     return result
 
 
 @api.post("/chat", response=ChatResponse)
