@@ -2,8 +2,9 @@ from smolagents import CodeAgent, InferenceClientModel, Tool, Model, PromptTempl
 
 from pandas import DataFrame
 
-from reddit_api import api as reddit_api
+from mcp.reddit_api import api as reddit_api
 import retrieval_agent as ra
+
 
 # Initialize a model (using Hugging Face Inference API)
 model = InferenceClientModel(bill_to="Agents-Hack")  # Uses a default model
