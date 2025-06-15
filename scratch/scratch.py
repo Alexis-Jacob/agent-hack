@@ -9,6 +9,7 @@ import os
 import tempfile
 import matplotlib.pyplot as plt
 from smolagents import tool
+import argparse
 
 REMOTE_MCP = {
     "url": "http://localhost:5000/mcp/",
@@ -58,9 +59,9 @@ def run_agent(tools_cfg, prompt: str) -> str:
         data_extract = agent_retriever.run(retriever_prompt + f"\nuser request: {prompt}" )
 
 
-        agent_analyzer = CodeAgent(tools=[*tool_collection.tools], 
-                          model=build_model(), 
-                          add_base_tools=False, additional_authorized_imports=["pandas", "pandas.*", "json"])
+        agent_analyzer = CodeAgent(tools=[], 
+                                   model=build_model(), 
+                                   add_base_tools=False, additional_authorized_imports=["pandas", "pandas.*", "json"])
         
         intereting_info = agent_analyzer.run("analyze this pandas dataset and give me interesting information.",
                             additional_args={
@@ -69,27 +70,25 @@ def run_agent(tools_cfg, prompt: str) -> str:
         
         graph_agent = CodeAgent(tools=[*tool_collection.tools, save_matplotlib_graph_to_tmp], 
                           model=build_model(), 
-                          add_base_tools=False, additional_authorized_imports=["pandas", "pandas.*", "json", "seaborn", "matplotlib.*"])
+                          add_base_tools=False, additional_authorized_imports=["pandas", "pandas.*", "json", "seaborn", "matplotlib.*"], )
         
         graph = graph_agent.run("come up with directions to represent this information as graphs"
-                                "you are given a pandas frame as well as directions to make graphs out of this pandas frame",
+                                "you are given a pandas frame as well as directions to make graphs out of this pandas frame"
+                                "don't show the graph, just save it",
                             additional_args={
                                 "dataframe": data_extract,
-                                "directions": intereting_info 
-                            })
+                                "directions": intereting_info
+                            },
+                            max_steps=5)
 
+# run_agent(REMOTE_MCP, "what are most influenciatal users on r/politics ?")
 
-    # mcp_client = MCPClient([tools_cfg])
-    # with MCPClient(tools_cfg) as mcp_client:
-    #     tools = mcp_client.get_tools()
+if __name__ == "__main__":
 
-    #     # Use the tools with your agent
-    #     agent = CodeAgent(tools=tools, model=build_model())
-    #     result = agent.run(prompt)
+    parser = argparse.ArgumentParser(description="Run the agent with a user query.")
+    parser.add_argument("-q", "--query", type=str, help="The user query to process")
+    args = parser.parse_args()
 
-    #     return result
-
-
-run_agent(REMOTE_MCP, "give me the best voted posts on r/politics over the last week. you must return the information as a pandas dataframe, or you will die")
+    run_agent(REMOTE_MCP, args.query)
 
 
