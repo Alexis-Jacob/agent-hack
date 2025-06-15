@@ -6,3 +6,7 @@ django-cors-headers>=4.5.0
 smolagents>=1.18.0
 smolagents[mcp]>=1.18.0
 smolagents[litellm]>=1.18.0
+redis>=5.0.1
+django-redis>=5.4.0
+pandas
+matplotlib

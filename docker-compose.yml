@@ -6,13 +6,16 @@ services:
       context: api/
       dockerfile: build/Dockerfile
     working_dir: /app/backend
-    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --reload --timeout 3600
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --reload --timeout 3600 --max-requests 1 --workers 4
     volumes:
       - ./api:/app
     ports:
       - "8000:8000"
     environment:
       - DEBUG=1
+      - ANTHROPIC_API_KEY=""
+    depends_on:
+      - redis
 
   frontend:
     image: node:20-alpine
@@ -39,3 +42,14 @@ services:
       - ./mcp:/app
     depends_on:
       - web
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  redis_data:
