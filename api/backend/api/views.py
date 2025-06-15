@@ -37,23 +37,20 @@ def build_model() -> InferenceClientModel:
     - https://docs.litellm.ai/docs/providers/anthropic
     - https://huggingface.co/docs/smolagents/en/index#using-different-models
     """
-    return LiteLLMModel(model_id="claude-opus-4-20250514", api_key="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")
+    return LiteLLMModel(model_id="claude-sonnet-4-20250514", api_key="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")
 
 
 async def run_agent(tools_cfg, prompt: str) -> str:
-    try:
-        mcp_client = MCPClient(tools_cfg)
+    mcp_client = MCPClient(tools_cfg)
+    with MCPClient(tools_cfg) as mcp_client:
         tools = mcp_client.get_tools()
 
         # Use the tools with your agent
         agent = CodeAgent(tools=tools, model=build_model())
         result = agent.run(prompt)
 
-        # Process the result as needed
         return result
-    finally:
-        # Always ensure the connection is properly closed
-        mcp_client.disconnect()
+
 
 @api.post("/chat", response=ChatResponse)
 async def chat(request, payload: ChatRequest):
@@ -61,4 +58,5 @@ async def chat(request, payload: ChatRequest):
     # await asyncio.sleep(0.1)  # Uncomment if you want to simulate async delay
 
     response = await run_agent(REMOTE_MCP, payload.message)
-    return {"message": f"LLM: {str(response)}"}
+    response = str(response)
+    return {"message": f"LLM: {response}"}

@@ -1,36 +1,29 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { getData } from './services/api'
-
-const message = ref('Loading...')
-
-onMounted(async () => {
-  try {
-    const data = await getData()
-    message.value = data.message || 'Hello from API!'
-  } catch (error) {
-    message.value = 'Error loading data from API'
-  }
-})
+import Chat from './components/Chat.vue'
 </script>
 
 <template>
-  <div class="container">
-    <h1>{{ message }}</h1>
+  <div class="app">
+    <Chat />
   </div>
 </template>
 
-<style scoped>
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-h1 {
-  font-size: 2.5rem;
-  color: #2c3e50;
-  margin-bottom: 1rem;
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 </style>

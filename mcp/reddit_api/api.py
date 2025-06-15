@@ -162,32 +162,32 @@ def get_n_best_comments(post_id36: str, n_comments: int) -> List[Dict[str, Any]]
     return first_generation_comments
 
 
-if __name__ == "__main__":
-    subreddit_name = "learnpython"
-    top_posts = per_sub_top_posts(subreddit_name, limit=50)
-    for post in top_posts:
-        print(post)
+# if __name__ == "__main__":
+#     subreddit_name = "learnpython"
+#     top_posts = per_sub_top_posts(subreddit_name, limit=50)
+#     for post in top_posts:
+#         print(post)
 
-    for post in top_posts:
-        print(get_n_best_comments(post["id36"], 2))
-        break   
+#     for post in top_posts:
+#         print(get_n_best_comments(post["id36"], 2))
+#         break   
     
-    user_name = "fonisuno"
-    user_info_data = user_info(user_name)
-    if user_info_data:
-        print(user_info_data)
-    else:
-        print(f"User {user_name} not found or suspended.")
+#     user_name = "fonisuno"
+#     user_info_data = user_info(user_name)
+#     if user_info_data:
+#         print(user_info_data)
+#     else:
+#         print(f"User {user_name} not found or suspended.")
 
-    userposts = user_posts(user_name, limit=50)
-    if userposts:
-        for post in userposts:
-            print(post)
+#     userposts = user_posts(user_name, limit=50)
+#     if userposts:
+#         for post in userposts:
+#             print(post)
 
-    usercomments = user_comments(user_name, limit=50)
-    if usercomments:
-        for comment in usercomments:
-            print(comment)
-    else:
-        print(f"No comments found for user {user_name}.")
+#     usercomments = user_comments(user_name, limit=50)
+#     if usercomments:
+#         for comment in usercomments:
+#             print(comment)
+#     else:
+#         print(f"No comments found for user {user_name}.")
 
