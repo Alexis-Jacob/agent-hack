@@ -2,6 +2,8 @@ import redditwarp.SYNC
 from redditwarp.SYNC import Client
 from redditwarp.models.submission import Submission
 from redditwarp.models.comment import Comment
+from datetime import datetime
+from typing import List, Dict, Any
 
 from smolagents import tool
 
@@ -122,11 +124,49 @@ def user_comments(username: str, limit: int=50) -> list:
     comments = client.p.user.pull.comments(username, amount=limit, sort='new')
     return [_comment_to_dict(comment) for comment in comments]
 
+
+def _traverse_nodes(tree_node):
+    """Yield each TreeNode in the comment tree."""
+    yield tree_node.value
+    for child in tree_node.children:
+        yield from _traverse_nodes(child)
+
+@tool
+def get_n_best_comments(post_id36: str, n_comments: int) -> List[Dict[str, Any]]:
+    """
+    Retrieves the top N best comments for a given post.
+    Args:
+        post_id36 (str): The base36 ID of the post to fetch comments from.
+        n_comments (int): The number of top comments to retrieve.
+    Returns:
+        list[dict]: A list of dictionaries, each containing information about a comment:
+            - author (str): The display name of the comment's author.
+            - score (int): The score of the comment.
+            - text (str): The body text of the comment.
+            - created_at (datetime): The creation time of the comment as a datetime object.
+    """
+
+    tree = client.p.comment_tree.fetch(post_id36, sort="top", limit=n_comments, depth=1)
+    first_generation_comments: List[Dict[str, Any]] = []
+    for cm in _traverse_nodes(tree):
+        first_generation_comments.append({
+            "author": cm.author_display_name,
+            "score": cm.score,
+            "text": cm.body,
+            "created_at": datetime.fromtimestamp(cm.created_ut)
+        })
+    return first_generation_comments
+
+
 if __name__ == "__main__":
     subreddit_name = "learnpython"
     top_posts = per_sub_top_posts(subreddit_name, limit=50)
     for post in top_posts:
         print(post)
+
+    for post in top_posts:
+        print(get_n_best_comments(post["id36"], 2))
+        break   
     
     user_name = "fonisuno"
     user_info_data = user_info(user_name)
