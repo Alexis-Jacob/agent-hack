@@ -38,7 +38,7 @@ def _post_to_dict(post:Submission) -> dict:
         'subreddit': post.subreddit.name,
     }
 
-def _dict_list_to_dataframe(dict_list: List[Dict[str, Any]]) -> DataFrame:
+def _dict_list_to_dataframe(dict_list: List[Dict[str, Any]]) -> str:
     """
     Converts a list of dictionaries to a pandas DataFrame.
     
@@ -46,14 +46,14 @@ def _dict_list_to_dataframe(dict_list: List[Dict[str, Any]]) -> DataFrame:
         dict_list (list[dict]): A list of dictionaries to convert.
         
     Returns:
-        pandas.DataFrame: A DataFrame containing the data from the list of dictionaries.
+        pandas.DataFrame: A JSON representation of a pandas DataFrame containing the data from the list of dictionaries.
     """
-    return DataFrame(dict_list)
+    return DataFrame(dict_list).to_json()
 
 @mcp.tool()
-def per_sub_top_posts(subreddit : str, limit : int =50, time:str="now") -> DataFrame:
+def per_sub_top_posts(subreddit : str, limit : int =50, time:str="now") -> str:
     """
-    Fetches the top posts from a specific subreddit. Returns a pandas DataFrame.
+    Fetches the top posts from a specific subreddit. Returns a pandas DataFrame represented as json.
     Columns include:
         - title
         - author
@@ -75,9 +75,9 @@ def per_sub_top_posts(subreddit : str, limit : int =50, time:str="now") -> DataF
     return _dict_list_to_dataframe([_post_to_dict(post) for post in posts])
 
 @mcp.tool()
-def per_sub_sample_new_posts(subreddit : str, limit : int =50) -> DataFrame:
+def per_sub_sample_new_posts(subreddit : str, limit : int =50) -> str:
     """
-    Fetches the top posts from a specific subreddit. Returns a pandas DataFrame.
+    Fetches the top posts from a specific subreddit. Returns a pandas DataFrame represented as json.
     Columns include:
         - title
         - author
@@ -122,9 +122,9 @@ def user_info(username: str) -> dict:
     }
 
 @mcp.tool()
-def user_posts(username: str, limit:int=50) -> DataFrame:
+def user_posts(username: str, limit:int=50) -> str:
     """
-    Fetches posts made by a specific user. Returns a pandas DataFrame.
+    Fetches posts made by a specific user. Returns a pandas DataFrame represented as json.
     Columns include:
         - title
         - author
@@ -167,9 +167,9 @@ def _comment_to_dict(comment: Comment) -> dict:
     }
 
 @mcp.tool()
-def user_comments(username: str, limit: int=50) -> DataFrame:
+def user_comments(username: str, limit: int=50) -> str:
     """
-    Fetches comments made by a specific user. Returns a pandas DataFrame.
+    Fetches comments made by a specific user. Returns a pandas DataFrame represented as json.
     Columns include:
         - body
         - author
@@ -199,9 +199,14 @@ def _traverse_nodes(tree_node):
         yield from _traverse_nodes(child)
 
 @mcp.tool()
-def get_n_best_comments(post_id36: str, n_comments: int) -> DataFrame:
+def get_n_best_comments(post_id36: str, n_comments: int) -> str:
     """
-    Retrieves the top N best comments for a given post.
+    Retrieves the top N best comments for a given post, as a pandas DataFrame represented as json.
+    Columns include:
+        - author
+        - score
+        - text
+        - created_at
     Args:
         post_id36 (str): The base36 ID of the post to fetch comments from.
         n_comments (int): The number of top comments to retrieve.
