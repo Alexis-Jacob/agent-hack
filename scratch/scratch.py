@@ -34,7 +34,13 @@ def run_agent(tools_cfg, prompt: str) -> str:
     with ToolCollection.from_mcp(tools_cfg, trust_remote_code=True) as tool_collection:
         agent = CodeAgent(tools=[*tool_collection.tools], model=build_model(), add_base_tools=False)
         result = agent.run(prompt)
-        return result
+
+        agent = CodeAgent(tools=[*tool_collection.tools], 
+                          model=build_model(), 
+                          add_base_tools=False,
+                          additional_args={"dataframe": result})
+        result2 = agent.run("analyze this json dataset and give me interesting information")
+
     # mcp_client = MCPClient([tools_cfg])
     # with MCPClient(tools_cfg) as mcp_client:
     #     tools = mcp_client.get_tools()
@@ -46,4 +52,4 @@ def run_agent(tools_cfg, prompt: str) -> str:
     #     return result
 
 
-run_agent(REMOTE_MCP, "give me the latest post on r/politics")
+run_agent(REMOTE_MCP, "give me the best voted posts on r/politics")
