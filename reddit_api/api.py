@@ -60,6 +60,7 @@ def per_sub_top_posts(subreddit : str, limit : int =50, time:str="now") -> DataF
     Args:
         subreddit (str): The name of the subreddit to fetch posts from.
         limit (int): The maximum number of posts to return.
+        time (str): The time period for which to fetch top posts. Default is "now". If you want to fetch posts from a specific time period, you can use "day", "week", "month", "year", or "all".
         
     Returns:
         list: A list of top posts from the specified subreddit.

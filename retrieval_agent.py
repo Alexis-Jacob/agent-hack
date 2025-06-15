@@ -15,11 +15,11 @@ class RetrievalAgent(CodeAgent):
         Run the agent with a given query.
         """
 
-        out_df = DataFrame(columns=["title", "author", "id36", "url", "score", "created_utc", "subreddit"])
-        response = super().run(query, additional_args={
+        out_df = DataFrame()
+        response = super().run("You cannot assign to output_df, you can only write to it through dataframe methods. " + query, additional_args={
             "output_df": out_df
         })
-        return response
+        return out_df
 
     
 
