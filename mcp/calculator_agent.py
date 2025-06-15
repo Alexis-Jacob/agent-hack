@@ -13,7 +13,7 @@ from pathlib import Path
 from mcp import StdioServerParameters           # stdio helper for local tools
 from smolagents import CodeAgent, MCPClient
 from smolagents.models import InferenceClientModel   # Hugging Face Inference API wrapper
-from smolagents import ToolCollection
+from smolagents import ToolCollection, LiteLLMModel
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Configuration ----------------------------------------------------------------
@@ -36,7 +36,20 @@ PROMPT = "What is (7 + 13) × 2?"                     # change as you like
 
 
 def build_model() -> InferenceClientModel:
-    return InferenceClientModel(model_id=MODEL_ID, token=HF_TOKEN)
+    """
+    Available models are : 
+    claude-4 (claude-opus-4-20250514, claude-sonnet-4-20250514)
+    claude-3.7 (claude-3-7-sonnet-20250219)
+    claude-3.5 (claude-3-5-sonnet-20240620)
+    claude-3 (claude-3-haiku-20240307, claude-3-opus-20240229, claude-3-sonnet-20240229)
+
+    You need to have the ANTHROPIC_API_KEY in your .env
+
+    Here are the links:
+    - https://docs.litellm.ai/docs/providers/anthropic
+    - https://huggingface.co/docs/smolagents/en/index#using-different-models
+    """
+    return LiteLLMModel(model_id="claude-3-7-sonnet-20250219")    
 
 
 async def run_agent(tools_cfg, prompt: str) -> str:
