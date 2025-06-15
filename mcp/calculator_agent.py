@@ -24,14 +24,15 @@ LOCAL_MATH_SERVER = StdioServerParameters(
 
 REMOTE_CALCULATOR = {
     # Any Space launched with demo.launch(mcp_server=True) exposes this endpoint
-    "url": "https://agents-mcp-hackathon-simple-calculator.hf.space/gradio_api/mcp/sse",
-    "transport": "sse",
+    "url": "http://localhost:5000/mcp/",
+    "transport": "streamable-http",
 }
 
 
 MODEL_ID = "mistralai/Mixtral-8x22B-Instruct-v0.1"   # works well for tool-use
 HF_TOKEN = os.getenv("HF_TOKEN")                     # or login via `huggingface-cli login`
-PROMPT = "What is (7 + 13) × 2?"                     # change as you like
+PROMPT = "What is (7 + 13) × 2?"
+
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -49,17 +50,17 @@ def build_model() -> InferenceClientModel:
     - https://docs.litellm.ai/docs/providers/anthropic
     - https://huggingface.co/docs/smolagents/en/index#using-different-models
     """
-    return LiteLLMModel(model_id="claude-3-7-sonnet-20250219")    
+    return LiteLLMModel(model_id="claude-3-7-sonnet-20250219", api_key="")
 
 
 async def run_agent(tools_cfg, prompt: str) -> str:
-    with ToolCollection.from_mcp(LOCAL_MATH_SERVER, trust_remote_code=True) as tool_collection:
+    with ToolCollection.from_mcp(REMOTE_CALCULATOR, trust_remote_code=True) as tool_collection:
         agent = CodeAgent(tools=[*tool_collection.tools], model=build_model(), add_base_tools=False)
         agent.run(PROMPT)
 
 
 async def main():
-    await run_agent(LOCAL_MATH_SERVER, PROMPT)
+    await run_agent(REMOTE_CALCULATOR, PROMPT)
 
 
 if __name__ == "__main__":

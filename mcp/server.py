@@ -13,6 +13,14 @@ def multiply(a: int, b: int) -> int:
     """Multiply two numbers."""
     return a * b
 
+@mcp.tool()
+def what_is_my_name() -> str:
+    """Answer the question of what is my name"""
+    return "my name is alexis"
+
+
+
+
 # if __name__ == "__main__":
 #     mcp.run(
 #         transport="streamable-http",
