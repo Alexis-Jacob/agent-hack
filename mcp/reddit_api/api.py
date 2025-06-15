@@ -4,8 +4,12 @@ from redditwarp.models.submission import Submission
 from redditwarp.models.comment import Comment
 from datetime import datetime
 from typing import List, Dict, Any
+from mcp.server.fastmcp import FastMCP
+import uvicorn
 
-from smolagents import tool
+mcp = FastMCP("MCP")
+
+# from smolagents import tool
 
 client = redditwarp.SYNC.Client()
 
@@ -30,7 +34,7 @@ def _post_to_dict(post:Submission) -> dict:
         'subreddit': post.subreddit.name,
     }
 
-@tool
+@mcp.tool()
 def per_sub_top_posts(subreddit : str, limit : int =50) -> list:
     """
     Fetches the top posts from a specific subreddit.
@@ -45,7 +49,7 @@ def per_sub_top_posts(subreddit : str, limit : int =50) -> list:
     posts = client.p.subreddit.pull.top(subreddit, amount=limit)
     return [_post_to_dict(post) for post in posts]
 
-@tool
+@mcp.tool()
 def user_info(username: str) -> dict:
     """
     Fetches user information for a given username.
@@ -69,7 +73,7 @@ def user_info(username: str) -> dict:
         'is_suspended': user.awardee_karma,
     }
 
-@tool
+@mcp.tool()
 def user_posts(username: str, limit:int=50) -> list:
     """
     Fetches posts made by a specific user.
@@ -106,7 +110,7 @@ def _comment_to_dict(comment: Comment) -> dict:
         'subreddit': comment.subreddit.name,
     }
 
-@tool
+@mcp.tool()
 def user_comments(username: str, limit: int=50) -> list:
     """
     Fetches comments made by a specific user.
@@ -131,7 +135,7 @@ def _traverse_nodes(tree_node):
     for child in tree_node.children:
         yield from _traverse_nodes(child)
 
-@tool
+@mcp.tool()
 def get_n_best_comments(post_id36: str, n_comments: int) -> List[Dict[str, Any]]:
     """
     Retrieves the top N best comments for a given post.
