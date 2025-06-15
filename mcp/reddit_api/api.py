@@ -11,6 +11,8 @@ mcp = FastMCP("MCP")
 
 # from smolagents import tool
 
+# mcp.tool = tool
+
 client = redditwarp.SYNC.Client()
 
 def _post_to_dict(post:Submission) -> dict:
