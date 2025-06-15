@@ -1,22 +1,22 @@
 from mcp.server.fastmcp import FastMCP
 import uvicorn
+from reddit_api.api import mcp
+# mcp = FastMCP("Math")
 
-mcp = FastMCP("Math")
+# @mcp.tool()
+# def add(a: int, b: int) -> int:
+#     """Add two numbers."""
+#     return a + b
 
-@mcp.tool()
-def add(a: int, b: int) -> int:
-    """Add two numbers."""
-    return a + b
+# @mcp.tool()
+# def multiply(a: int, b: int) -> int:
+#     """Multiply two numbers."""
+#     return a * b
 
-@mcp.tool()
-def multiply(a: int, b: int) -> int:
-    """Multiply two numbers."""
-    return a * b
-
-@mcp.tool()
-def what_is_my_name() -> str:
-    """Answer the question of what is my name"""
-    return "my name is alexis"
+# @mcp.tool()
+# def what_is_my_name() -> str:
+#     """Answer the question of what is my name"""
+#     return "my name is alexis"
 
 
 

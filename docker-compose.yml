@@ -5,14 +5,19 @@ services:
     build:
       context: api/
       dockerfile: build/Dockerfile
-    command: python backend/manage.py runserver 0.0.0.0:8000
+    working_dir: /app/backend
+<<<<<<< HEAD
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --reload --timeout 3600
+=======
+    # command: ls
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --reload
+>>>>>>> dd83ffc (new tools)
     volumes:
       - ./api:/app
     ports:
       - "8000:8000"
     environment:
       - DEBUG=1
-      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1] web
 
   frontend:
     image: node:20-alpine

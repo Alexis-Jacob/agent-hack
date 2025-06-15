@@ -31,7 +31,7 @@ REMOTE_CALCULATOR = {
 
 MODEL_ID = "mistralai/Mixtral-8x22B-Instruct-v0.1"   # works well for tool-use
 HF_TOKEN = os.getenv("HF_TOKEN")                     # or login via `huggingface-cli login`
-PROMPT = "What is (7 + 13) × 2?"
+PROMPT = "What is (7 + 13) × 2?"     
 
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -50,7 +50,7 @@ def build_model() -> InferenceClientModel:
     - https://docs.litellm.ai/docs/providers/anthropic
     - https://huggingface.co/docs/smolagents/en/index#using-different-models
     """
-    return LiteLLMModel(model_id="claude-3-7-sonnet-20250219", api_key="")
+    return LiteLLMModel(model_id="claude-3-7-sonnet-20250219", api_key="")    
 
 
 async def run_agent(tools_cfg, prompt: str) -> str:
