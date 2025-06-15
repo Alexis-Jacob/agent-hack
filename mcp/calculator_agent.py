@@ -1,35 +1,66 @@
-import asyncio, os
-from smolagents import CodeAgent, MCPClient, InferenceClientModel
-from mcp import StdioServerParameters      # only for local stdio servers
+#!/usr/bin/env python
+"""
+client.py – small-agent + MCP demo
+Run with:
+    python client.py                        # -> local ./math_server.py
+    python client.py --remote               # -> remote HF Space
+"""
+import asyncio
+import argparse
+import os
+from pathlib import Path
 
-model = InferenceClientModel(
-    model_id="mistralai/Mixtral-8x22B-Instruct-v0.1",  # any tool-calling model works
-    hf_token=os.environ["HF_TOKEN"]                    # or leave unset if you’re already logged in
+from mcp import StdioServerParameters           # stdio helper for local tools
+from smolagents import CodeAgent, MCPClient
+from smolagents.models import InferenceClientModel   # Hugging Face Inference API wrapper
+from smolagents import ToolCollection, LiteLLMModel
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Configuration ----------------------------------------------------------------
+LOCAL_MATH_SERVER = StdioServerParameters(
+    command="python",
+    args=[str(Path(__file__).with_name("calculator_server.py"))],   # ./math_server.py
 )
 
-async def run_local():
-    """Use the same local math_server.py you already have."""
-    math_params = StdioServerParameters(
-        command="python", args=["./math_server.py"],   # identical to your original
-        env=os.environ
-    )
-    async with MCPClient(math_params) as tools:        # discovers the tools
-        agent = CodeAgent(tools=tools, model=model, add_base_tools=True)
-        result = await agent.run_async("What is (7 + 13) × 2?")
-        print(result)
+REMOTE_CALCULATOR = {
+    # Any Space launched with demo.launch(mcp_server=True) exposes this endpoint
+    "url": "https://agents-mcp-hackathon-simple-calculator.hf.space/gradio_api/mcp/sse",
+    "transport": "sse",
+}
 
-async def run_remote():
-    """Hit a hosted calculator Space on the HF hub."""
-    # Every Gradio Space launched with `mcp_server=True`
-    # exposes an SSE endpoint at …/gradio_api/mcp/sse
-    calc_space = {
-        "url": "https://agents-mcp-hackathon-simple-calculator.hf.space/gradio_api/mcp/sse",
-        "transport": "sse"
-    }
-    async with MCPClient(calc_space) as tools:
-        agent = CodeAgent(tools=tools, model=model)
-        result = await agent.run_async("What is (7 + 13) × 2?")
-        print(result)
+
+MODEL_ID = "mistralai/Mixtral-8x22B-Instruct-v0.1"   # works well for tool-use
+HF_TOKEN = os.getenv("HF_TOKEN")                     # or login via `huggingface-cli login`
+PROMPT = "What is (7 + 13) × 2?"                     # change as you like
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def build_model() -> InferenceClientModel:
+    """
+    Available models are : 
+    claude-4 (claude-opus-4-20250514, claude-sonnet-4-20250514)
+    claude-3.7 (claude-3-7-sonnet-20250219)
+    claude-3.5 (claude-3-5-sonnet-20240620)
+    claude-3 (claude-3-haiku-20240307, claude-3-opus-20240229, claude-3-sonnet-20240229)
+
+    You need to have the ANTHROPIC_API_KEY in your .env
+
+    Here are the links:
+    - https://docs.litellm.ai/docs/providers/anthropic
+    - https://huggingface.co/docs/smolagents/en/index#using-different-models
+    """
+    return LiteLLMModel(model_id="claude-3-7-sonnet-20250219")    
+
+
+async def run_agent(tools_cfg, prompt: str) -> str:
+    with ToolCollection.from_mcp(LOCAL_MATH_SERVER, trust_remote_code=True) as tool_collection:
+        agent = CodeAgent(tools=[*tool_collection.tools], model=build_model(), add_base_tools=False)
+        agent.run(PROMPT)
+
+
+async def main():
+    await run_agent(LOCAL_MATH_SERVER, PROMPT)
+
 
 if __name__ == "__main__":
-    asyncio.run(run_remote())        # or run_local()
+    asyncio.run(main())
