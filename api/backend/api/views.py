@@ -37,7 +37,7 @@ def build_model() -> InferenceClientModel:
     - https://docs.litellm.ai/docs/providers/anthropic
     - https://huggingface.co/docs/smolagents/en/index#using-different-models
     """
-    return LiteLLMModel(model_id="claude-sonnet-4-20250514", api_key="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")
+    return LiteLLMModel(model_id="claude-sonnet-4-20250514", api_key="")
 
 
 async def run_agent(tools_cfg, prompt: str) -> str:
