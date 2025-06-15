@@ -7,6 +7,8 @@ from typing import List, Dict, Any
 from mcp.server.fastmcp import FastMCP
 import uvicorn
 
+from pandas import DataFrame
+
 mcp = FastMCP("MCP")
 
 # from smolagents import tool
@@ -36,10 +38,30 @@ def _post_to_dict(post:Submission) -> dict:
         'subreddit': post.subreddit.name,
     }
 
-@mcp.tool()
-def per_sub_top_posts(subreddit : str, limit : int =50) -> list:
+def _dict_list_to_dataframe(dict_list: List[Dict[str, Any]]) -> DataFrame:
     """
-    Fetches the top posts from a specific subreddit.
+    Converts a list of dictionaries to a pandas DataFrame.
+    
+    Args:
+        dict_list (list[dict]): A list of dictionaries to convert.
+        
+    Returns:
+        pandas.DataFrame: A DataFrame containing the data from the list of dictionaries.
+    """
+    return DataFrame(dict_list)
+
+@mcp.tool()
+def per_sub_top_posts(subreddit : str, limit : int =50, time:str="now") -> DataFrame:
+    """
+    Fetches the top posts from a specific subreddit. Returns a pandas DataFrame.
+    Columns include:
+        - title
+        - author
+        - id36
+        - url
+        - score
+        - created_utc
+        - subreddit
     
     Args:
         subreddit (str): The name of the subreddit to fetch posts from.
@@ -49,8 +71,31 @@ def per_sub_top_posts(subreddit : str, limit : int =50) -> list:
     Returns:
         list: A list of top posts from the specified subreddit.
     """
-    posts = client.p.subreddit.pull.top(subreddit, amount=limit)
-    return [_post_to_dict(post) for post in posts]
+    posts = client.p.subreddit.pull.top(subreddit, amount=limit, time=time)
+    return _dict_list_to_dataframe([_post_to_dict(post) for post in posts])
+
+@mcp.tool()
+def per_sub_sample_new_posts(subreddit : str, limit : int =50) -> DataFrame:
+    """
+    Fetches the top posts from a specific subreddit. Returns a pandas DataFrame.
+    Columns include:
+        - title
+        - author
+        - id36
+        - url
+        - score
+        - created_utc
+        - subreddit
+    
+    Args:
+        subreddit (str): The name of the subreddit to fetch posts from.
+        limit (int): The maximum number of posts to return.
+        
+    Returns:
+        list: A list of top posts from the specified subreddit.
+    """
+    posts = client.p.subreddit.pull.new(subreddit, amount=limit)
+    return _dict_list_to_dataframe([_post_to_dict(post) for post in posts])
 
 @mcp.tool()
 def user_info(username: str) -> dict:
@@ -77,9 +122,17 @@ def user_info(username: str) -> dict:
     }
 
 @mcp.tool()
-def user_posts(username: str, limit:int=50) -> list:
+def user_posts(username: str, limit:int=50) -> DataFrame:
     """
-    Fetches posts made by a specific user.
+    Fetches posts made by a specific user. Returns a pandas DataFrame.
+    Columns include:
+        - title
+        - author
+        - id36
+        - url
+        - score
+        - created_utc
+        - subreddit
     
     Args:
         username (str): The Reddit username to fetch posts for.
@@ -92,7 +145,7 @@ def user_posts(username: str, limit:int=50) -> list:
     if not user:
         return []  # User not found or suspended
     posts = client.p.user.pull.submitted(username, amount=limit, sort='new')
-    return [_post_to_dict(post) for post in posts]
+    return _dict_list_to_dataframe([_post_to_dict(post) for post in posts])
 
 def _comment_to_dict(comment: Comment) -> dict:
     """
@@ -114,9 +167,16 @@ def _comment_to_dict(comment: Comment) -> dict:
     }
 
 @mcp.tool()
-def user_comments(username: str, limit: int=50) -> list:
+def user_comments(username: str, limit: int=50) -> DataFrame:
     """
-    Fetches comments made by a specific user.
+    Fetches comments made by a specific user. Returns a pandas DataFrame.
+    Columns include:
+        - body
+        - author
+        - id36
+        - score
+        - created_utc
+        - subreddit
     
     Args:
         username (str): The Reddit username to fetch comments for.
@@ -129,7 +189,7 @@ def user_comments(username: str, limit: int=50) -> list:
     if not user:
         return []  # User not found or suspended
     comments = client.p.user.pull.comments(username, amount=limit, sort='new')
-    return [_comment_to_dict(comment) for comment in comments]
+    return _dict_list_to_dataframe([_comment_to_dict(comment) for comment in comments])
 
 
 def _traverse_nodes(tree_node):
@@ -139,7 +199,7 @@ def _traverse_nodes(tree_node):
         yield from _traverse_nodes(child)
 
 @mcp.tool()
-def get_n_best_comments(post_id36: str, n_comments: int) -> List[Dict[str, Any]]:
+def get_n_best_comments(post_id36: str, n_comments: int) -> DataFrame:
     """
     Retrieves the top N best comments for a given post.
     Args:
@@ -162,7 +222,7 @@ def get_n_best_comments(post_id36: str, n_comments: int) -> List[Dict[str, Any]]
             "text": cm.body,
             "created_at": datetime.fromtimestamp(cm.created_ut)
         })
-    return first_generation_comments
+    return _dict_list_to_dataframe(first_generation_comments)
 
 
 if __name__ == "__main__":
